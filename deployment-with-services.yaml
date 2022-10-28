@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-app-deployment
+  labels:
+    app: test-app
+    type: deployment-type
+spec:
+  template:
+    metadata:
+      name: test-app-pod
+      labels:
+        app: test-app
+        type: test-app-type
+    spec:
+      containers:
+        - name: test-app-pod
+          image: nginx
+          env:
+            - name: EXAMPLE_ENV_VAR
+              value: "Example env var"
+  replicas: 1
+  selector:
+    matchLabels:
+      type: test-app-type
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-app-clusterip-service
+
+spec:
+  type: ClusterIP
+  ports:
+    - targetPort: 80
+      port: 80
+  # Copy and paste the pod labels
+  selector:
+    app: test-app
+    type: test-app-type
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-app-nodeport-service
+spec:
+  type: NodePort
+  ports:
+    - targetPort: 80
+      port: 80
+      nodePort: 30000
+  # Copy and paste the pod labels
+  selector:
+    app: test-app
+    type: test-app-type
